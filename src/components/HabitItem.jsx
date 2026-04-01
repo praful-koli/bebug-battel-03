@@ -15,7 +15,12 @@ const HabitItem = ({ habit }) => {
     setEditing(false);
   };
 
-  // Priority badge colors
+  const handleCancel = () => {
+    setEditData({ ...habit }); 
+    setEditing(false);
+  };
+
+
   const priorityColors = {
     low: "bg-green-100 text-green-700",
     medium: "bg-yellow-100 text-yellow-700",
@@ -25,22 +30,62 @@ const HabitItem = ({ habit }) => {
   return (
     <div className="bg-white shadow rounded-lg p-4 mb-4">
       {editing ? (
-        <div className="space-y-2">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">EDIT HABIT</h3>
+
+
           <input
             value={editData.name}
             onChange={(e) => setEditData({ ...editData, name: e.target.value })}
             className="border p-2 w-full rounded"
+            placeholder="Habit name"
           />
-          <button
-            onClick={handleSave}
-            className="bg-purple-600 text-white px-4 py-2 rounded"
+
+    
+          <select
+            value={editData.priority}
+            onChange={(e) =>
+              setEditData({ ...editData, priority: e.target.value })
+            }
+            className="border p-2 w-full rounded"
           >
-            Save
-          </button>
+            <option value="low">Low Priority</option>
+            <option value="medium">Medium Priority</option>
+            <option value="high">High Priority</option>
+          </select>
+
+        
+          <select
+            value={editData.category}
+            onChange={(e) =>
+              setEditData({ ...editData, category: e.target.value })
+            }
+            className="border p-2 w-full rounded"
+          >
+            <option value="health">Health</option>
+            <option value="growth">Growth</option>
+            <option value="productivity">Productivity</option>
+          </select>
+
+   
+          <div className="flex gap-3">
+            <button
+              onClick={handleSave}
+              className="bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Save Changes
+            </button>
+            <button
+              onClick={handleCancel}
+              className="bg-gray-200 text-gray-700 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       ) : (
         <div>
-          {/* Header row with category + priority */}
+         
           <div className="flex justify-between items-center mb-2">
             <span className="text-xs uppercase font-bold text-purple-600">
               {habit.category}
@@ -52,10 +97,10 @@ const HabitItem = ({ habit }) => {
             </span>
           </div>
 
-          {/* Habit name */}
+
           <h3 className="text-lg font-semibold">{habit.name}</h3>
 
-          {/* Goal + streak */}
+
           <p className="text-sm text-gray-600">
             Goal: {habit.goalValue} {habit.unit}
           </p>
@@ -66,7 +111,7 @@ const HabitItem = ({ habit }) => {
             {isDoneToday ? " Done today" : " Not done today"}
           </p>
 
-          {/* Action buttons */}
+        
           <div className="flex gap-3 mt-3">
             <button
               onClick={() => setEditing(true)}
