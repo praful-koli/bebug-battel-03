@@ -1,94 +1,194 @@
 import { useState } from "react";
 import { useHabit } from "../context/HabitContext";
 
-const HabitItem = ({ habit }) => {
+const HabitItem = ({ habit, index }) => {
   const { toggleHabit, deleteHabit, updateHabit, getStreak } = useHabit();
 
   const [editing, setEditing] = useState(false);
   const [editData, setEditData] = useState({ ...habit });
+  const [hovered, setHovered] = useState(false);
 
   const today = new Date().toISOString().split("T")[0];
   const isDoneToday = habit.completedDates.includes(today);
+  const streak = getStreak(habit.completedDates);
 
   const handleSave = () => {
     updateHabit(habit.id, editData);
     setEditing(false);
   };
 
-  // Priority badge colors
-  const priorityColors = {
-    low: "bg-green-100 text-green-700",
-    medium: "bg-yellow-100 text-yellow-700",
-    high: "bg-red-100 text-red-700",
+  const priorityLabel = {
+    low: <span className="win-badge-low">[LOW]</span>,
+    medium: <span className="win-badge-medium">[MED]</span>,
+    high: <span className="win-badge-high">[HIGH]</span>,
   };
 
+  const categoryIcon = {
+    health: "❤️",
+    mindset: "🧠",
+    productivity: "⚡",
+  };
+
+  const rowBg = hovered
+    ? "#dde8f8"
+    : index % 2 === 0
+    ? "#ffffff"
+    : "#f5f3ee";
+
+  if (editing) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          padding: "4px 6px",
+          gap: "6px",
+          background: "#fffde0",
+          borderBottom: "1px solid #c8c4be",
+        }}
+      >
+        <span style={{ fontSize: 12, marginRight: 2 }}>✏️</span>
+        <input
+          value={editData.name}
+          onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+          className="win-input"
+          style={{ flex: 2 }}
+          autoFocus
+        />
+        <button className="win-btn win-btn-primary" onClick={handleSave}>
+          Save
+        </button>
+        <button className="win-btn" onClick={() => setEditing(false)}>
+          Cancel
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white shadow rounded-lg p-4 mb-4">
-      {editing ? (
-        <div className="space-y-2">
-          <input
-            value={editData.name}
-            onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-            className="border p-2 w-full rounded"
-          />
-          <button
-            onClick={handleSave}
-            className="bg-purple-600 text-white px-4 py-2 rounded"
-          >
-            Save
-          </button>
-        </div>
-      ) : (
-        <div>
-          {/* Header row with category + priority */}
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-xs uppercase font-bold text-purple-600">
-              {habit.category}
-            </span>
-            <span
-              className={`text-xs px-2 py-1 rounded ${priorityColors[habit.priority]}`}
-            >
-              {habit.priority.toUpperCase()}
-            </span>
-          </div>
+    <div
+      className="win-listitem"
+      style={{
+        background: rowBg,
+        borderBottom: "1px solid #c8c4be",
+        padding: "3px 6px",
+        display: "flex",
+        alignItems: "center",
+        gap: "6px",
+        cursor: "default",
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Done checkbox (simulated Win2K style) */}
+      <div
+        onClick={() => toggleHabit(habit.id)}
+        style={{
+          width: 13,
+          height: 13,
+          border: "2px inset #808080",
+          background: isDoneToday ? "#000080" : "#fff",
+          cursor: "pointer",
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderTop: "2px solid #404040",
+          borderLeft: "2px solid #404040",
+          borderRight: "2px solid #dfdfdf",
+          borderBottom: "2px solid #dfdfdf",
+        }}
+        title={isDoneToday ? "Mark as not done" : "Mark as done"}
+      >
+        {isDoneToday && (
+          <span style={{ color: "#fff", fontSize: 9, lineHeight: 1, fontWeight: "bold" }}>
+            ✓
+          </span>
+        )}
+      </div>
 
-          {/* Habit name */}
-          <h3 className="text-lg font-semibold">{habit.name}</h3>
+      {/* Habit name */}
+      <span
+        style={{
+          flex: 2,
+          fontWeight: isDoneToday ? "normal" : "normal",
+          textDecoration: isDoneToday ? "line-through" : "none",
+          color: isDoneToday ? "#808080" : "#000",
+          fontSize: 11,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {categoryIcon[habit.category] || "📌"} {habit.name}
+      </span>
 
-          {/* Goal + streak */}
-          <p className="text-sm text-gray-600">
-            Goal: {habit.goalValue} {habit.unit}
-          </p>
-          <p className="text-sm text-gray-600">
-            Streak: {getStreak(habit.completedDates)}
-          </p>
-          <p className="text-sm">
-            {isDoneToday ? " Done today" : " Not done today"}
-          </p>
+      {/* Category */}
+      <span
+        style={{
+          flex: 1,
+          fontSize: 10,
+          color: "#000080",
+          textTransform: "capitalize",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {habit.category}
+      </span>
 
-          {/* Action buttons */}
-          <div className="flex gap-3 mt-3">
-            <button
-              onClick={() => setEditing(true)}
-              className="text-blue-600 text-sm"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => deleteHabit(habit.id)}
-              className="text-red-600 text-sm"
-            >
-              Delete
-            </button>
-            <button
-              onClick={() => toggleHabit(habit.id)}
-              className="bg-purple-600 text-white px-3 py-1 rounded text-sm"
-            >
-              Complete
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Goal */}
+      <span style={{ flex: 1, fontSize: 10, color: "#333" }}>
+        {habit.goalValue} {habit.unit}
+      </span>
+
+      {/* Streak */}
+      <span style={{ flex: 1, fontSize: 10, color: "#444" }}>
+        🔥 {streak}d
+      </span>
+
+      {/* Priority */}
+      <span style={{ flex: 1, fontSize: 10 }}>
+        {priorityLabel[habit.priority] || habit.priority}
+      </span>
+
+      {/* Status */}
+      <span
+        style={{
+          flex: 1,
+          fontSize: 10,
+          color: isDoneToday ? "#006400" : "#800000",
+          fontWeight: "bold",
+        }}
+      >
+        {isDoneToday ? "✓ Done" : "✗ Pending"}
+      </span>
+
+      {/* Actions */}
+      <div style={{ flex: 2, display: "flex", gap: "3px" }}>
+        <button
+          className="win-btn"
+          onClick={() => toggleHabit(habit.id)}
+          style={{ minWidth: 55, fontSize: 10, padding: "1px 6px" }}
+        >
+          {isDoneToday ? "Undo" : "Complete"}
+        </button>
+        <button
+          className="win-btn"
+          onClick={() => setEditing(true)}
+          style={{ minWidth: 40, fontSize: 10, padding: "1px 6px" }}
+        >
+          Edit
+        </button>
+        <button
+          className="win-btn win-btn-danger"
+          onClick={() => deleteHabit(habit.id)}
+          style={{ minWidth: 40, fontSize: 10, padding: "1px 6px" }}
+        >
+          Del
+        </button>
+      </div>
     </div>
   );
 };

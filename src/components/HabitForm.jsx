@@ -9,75 +9,140 @@ const HabitForm = () => {
     const payload = {
       ...values,
       id: crypto.randomUUID(),
-      completedDates: [],   // start empty
+      completedDates: [],
       createdAt: new Date().toISOString(),
     };
     addHabit(payload);
     reset();
   };
 
+  const labelStyle = {
+    display: "block",
+    fontSize: 11,
+    marginBottom: 2,
+    fontWeight: "bold",
+    color: "#000",
+  };
+
+  const fieldStyle = { marginBottom: 8 };
+
   return (
-    <form onSubmit={handleSubmit(onCommit)} className="space-y-4 p-4 border rounded">
-      {/* Habit Name */}
-      <input
-        type="text"
-        placeholder="e.g. Morning Exercise"
-        {...register("name", { required: true })}
-        className="border p-2 w-full"
-      />
+    <form
+      onSubmit={handleSubmit(onCommit)}
+      style={{ display: "flex", flexDirection: "column", gap: "0px" }}
+    >
+      {/* Groupbox: Basic Info */}
+      <div className="win-groupbox" style={{ marginBottom: 8 }}>
+        <span className="win-groupbox-label">Basic Info</span>
 
-      {/* Daily Goal */}
-      <input
-        type="number"
-        placeholder="30"
-        {...register("goalValue", { required: true })}
-        className="border p-2 w-full"
-      />
+        <div style={fieldStyle}>
+          <label style={labelStyle}>Habit Name:</label>
+          <input
+            type="text"
+            placeholder="e.g. Morning Exercise"
+            {...register("name", { required: true })}
+            className="win-input"
+          />
+        </div>
 
-      {/* Unit */}
-      <select {...register("unit")} className="border p-2 w-full">
-        <option value="minutes">Minutes</option>
-        <option value="hours">Hours</option>
-        <option value="reps">Reps</option>
-      </select>
+        <div style={{ display: "flex", gap: "6px", ...fieldStyle }}>
+          <div style={{ flex: 1 }}>
+            <label style={labelStyle}>Goal:</label>
+            <input
+              type="number"
+              placeholder="30"
+              {...register("goalValue", { required: true })}
+              className="win-input"
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={labelStyle}>Unit:</label>
+            <select {...register("unit")} className="win-select">
+              <option value="minutes">Minutes</option>
+              <option value="hours">Hours</option>
+              <option value="reps">Reps</option>
+            </select>
+          </div>
+        </div>
 
-      {/* Start Date */}
-      <input
-        type="date"
-        {...register("startDate")}
-        className="border p-2 w-full"
-      />
+        <div style={fieldStyle}>
+          <label style={labelStyle}>Start Date:</label>
+          <input
+            type="date"
+            {...register("startDate")}
+            className="win-input"
+          />
+        </div>
 
-      {/* Category */}
-      <select {...register("category")} className="border p-2 w-full">
-        <option value="health">Health</option>
-        <option value="mindset">Mindset</option>
-        <option value="productivity">Productivity</option>
-      </select>
-
-      {/* Motivation */}
-      <textarea
-        placeholder="Why is this important to you?"
-        {...register("motivation")}
-        className="border p-2 w-full"
-      />
-
-      {/* Priority Level */}
-      <div className="flex gap-4">
-        <label>
-          <input type="radio" value="low" {...register("priority")} /> Low
-        </label>
-        <label>
-          <input type="radio" value="medium" {...register("priority")} /> Medium
-        </label>
-        <label>
-          <input type="radio" value="high" {...register("priority")} /> High
-        </label>
+        <div style={fieldStyle}>
+          <label style={labelStyle}>Category:</label>
+          <select {...register("category")} className="win-select">
+            <option value="health">Health</option>
+            <option value="mindset">Mindset</option>
+            <option value="productivity">Productivity</option>
+          </select>
+        </div>
       </div>
 
-      <button type="submit" className="bg-purple-600 text-white px-4 py-2 rounded">
-        Create Habit
-      </button>
+      {/* Groupbox: Details */}
+      <div className="win-groupbox" style={{ marginBottom: 8 }}>
+        <span className="win-groupbox-label">Details</span>
+
+        <div style={fieldStyle}>
+          <label style={labelStyle}>Motivation:</label>
+          <textarea
+            placeholder="Why is this important to you?"
+            {...register("motivation")}
+            className="win-textarea"
+            rows={3}
+          />
+        </div>
+
+        <div style={fieldStyle}>
+          <label style={labelStyle}>Priority Level:</label>
+          <div style={{ display: "flex", gap: "12px", marginTop: 2 }}>
+            {["low", "medium", "high"].map((p) => (
+              <label
+                key={p}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  cursor: "pointer",
+                  fontSize: 11,
+                }}
+              >
+                <input
+                  type="radio"
+                  value={p}
+                  {...register("priority")}
+                  style={{ cursor: "pointer" }}
+                />
+                {p.charAt(0).toUpperCase() + p.slice(1)}
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Buttons */}
+      <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+        <button
+          type="submit"
+          className="win-btn win-btn-primary"
+          style={{ minWidth: 90 }}
+        >
+          OK
+        </button>
+        <button
+          type="button"
+          className="win-btn"
+          onClick={() => reset()}
+          style={{ minWidth: 70 }}
+        >
+          Reset
+        </button>
+      </div>
     </form>
   );
 };
